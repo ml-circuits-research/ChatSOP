@@ -380,6 +380,9 @@ export default async function run(tools, params) { const e = 'file'; const n = '
   assert.deepEqual(codeLiterals(code), ['file', 'notes', '.txt']);
   assert.deepEqual(hardcodedValues(code, 'Add the prefix 2026- to every .txt file in the notes folder', { folder: 'notes' }), ['notes', '.txt']);
   assert.deepEqual(hardcodedValues(code, 'Count the files of a folder', { folder: 'notes' }), []);
+  const top = `export default async function run(tools, p) { const r = await tools.runSkillScript('text-stats', 'scripts/stats.mjs', [p.file, '3']); return r.stdout.split(',').slice(0, 2).join(' '); }`;
+  assert.deepEqual(hardcodedValues(top, 'Report the 3 most frequent words of a.txt', {}, { allowed: ['text-stats', 'scripts/stats.mjs'] }), ['3'], 'a digit of the request written as text is a value');
+  assert.deepEqual(hardcodedValues(top, 'Report the most frequent words of a.txt', {}, { allowed: ['text-stats', 'scripts/stats.mjs'] }), [], 'a digit the request does not hold is not');
   assert.deepEqual(hardcodedValues(`export default async function run(tools) { return tools.runSkillScript('text-stats', 'scripts/stats.mjs', []); }`, 'Use the text-stats skill on a.txt', {}, { allowed: ['text-stats', 'scripts/stats.mjs'] }), [], 'a skill named in the request is a tool, not a value');
   const dir = csvFolder();
   const hard = SUM_PLAN.replace('rows[0].indexOf(params.column);\n  if', "rows[0].indexOf('amount');\n  if");

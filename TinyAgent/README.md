@@ -2,20 +2,21 @@
 
 A small agent for model work, in one folder, Node >= 22 built-ins only. ONE server per machine does everything that touches a model:
 providers and intelligence tiers, rate and plan limits, throttling, local model servers (start, slots, idle stop), the response cache,
-the audit store, costs and budgets, batch jobs, skills, SkillPlugins and a sandbox for plugins written on the fly. Programs, command
-lines and other agents are thin clients of that server, through the library (`createTinyAgent`) or the CLI (`tinyagent`). Nothing else
-calls a model API.
+the audit store, costs and budgets, batch jobs, TaskLambdas (every call of one an audited folder) and a sandbox for the ones a model
+writes. Programs, command lines and other agents are thin clients of that server, through the library (`createTinyAgent`) or the CLI
+(`tinyagent`). Nothing else calls a model API.
 
 TinyAgent knows nothing about the project that uses it: project work (formalization, ingestion, reviews with a domain validator) comes
-in as SkillPlugins, job folders and task templates named by the project's configuration layer.
+in as project TaskLambdas, job folders and task templates named by the project's configuration layer.
 
 ## Quick start
 
 ```
 node TinyAgent/bin/tinyagent.mjs serve                 # the server, http://127.0.0.1:18080 (first start writes ~/.tinyagent/)
 node TinyAgent/bin/tinyagent.mjs chat --tier tiny "Say hello"
-node TinyAgent/bin/tinyagent.mjs run "Sum the amount column of sales.csv"   # the agent, in the current folder (plans in ./.tinyagent/plans)
-node TinyAgent/bin/tinyagent.mjs plans list            # the plan cache of the current folder
+node TinyAgent/bin/tinyagent.mjs run "Sum the amount column of sales.csv"   # the agent, in the current folder (TaskLambdas in ./.tinyagent/lambdas)
+node TinyAgent/bin/tinyagent.mjs lambdas list          # the TaskLambda cache of the current folder (--server: the server's TaskLambdas)
+node TinyAgent/bin/tinyagent.mjs calls list            # the latest TaskLambdaCalls (~/.tinyagent/calls); calls tree <id>, calls show <id>
 node TinyAgent/bin/tinyagent.mjs models                # local model servers
 node TinyAgent/bin/tinyagent.mjs stats
 node --test TinyAgent/test/*.test.mjs                  # stub providers, no network, no model
@@ -37,7 +38,8 @@ Everything of a user lives in `~/.tinyagent/` (`TINYAGENT_HOME` moves it):
 | `data/` | the request log (`requests-<day>.jsonl`, 31 days), run registrations (`jobs/runs.jsonl`) |
 | `cache/`, `audit/` | the response cache and the audit store |
 | `logs/` | the logs of local model servers and of servers started by a client |
-| `runs/` | job runs, task folders and operations (`runs/ops/<id>/`: request, log, plan, result, generated plugins) |
+| `calls/` | TaskLambdaCalls: one folder per call (`<YYYY-MM-DD>/<lambda>-<id>/`, children nested), `index.jsonl` per day (below) |
+| `runs/` | job run folders (`<job>/<run-id>/`) and task folders (`tasks/<task-id>/`), linked from their calls |
 | `models/` | default place of local GGUF files |
 
 Configuration layers, each over the previous one: the built-in defaults (`TinyAgent/config.default.json`), `~/.tinyagent/config.json`,
@@ -140,17 +142,20 @@ const j = await ta.json({tier: 'good', prompt: 'Return {"a": 1}'});            /
 await ta.role('structure').structure({text, entities, relations});            // prompted roles: .structure(), .fol(), .chat()
 await ta.runJob('jobs/my-job', {stage: 'pilot', priority: 'background'});     // waits for the operation; {wait: false} returns its id
 await ta.task({instructions, attachments: ['a.txt'], target: {kind: 'none'}});
-await ta.skill('extract-table', {columns: ['price']}, {attach: ['a.txt']});
-await ta.run('Count the words of the attached file', {attach: ['a.txt'], planOnly: false});   // server skills as steps (CLI run-skills)
+await ta.call('extract-table', {columns: ['price']}, {attach: ['a.txt']});    // a TaskLambdaCall: {id, dir (the call folder), status, result}
+await ta.run('Count the words of the attached file', {attach: ['a.txt'], planOnly: false});   // server TaskLambdas as steps (CLI run-lambdas)
 // the agent of `tinyagent run` runs in the caller's process: import {runAgent} from './TinyAgent/lib/agent/index.mjs';
 // await runAgent({request: 'Sum the amount column of sales.csv', workdir: '.', ta, config});   // below, "The agent"
-await ta.skills(); await ta.stats(); await ta.models(); await ta.tiers(); await ta.health();
+await ta.call('extract-table', {columns: ['price']}, {wait: false});         // the background form: the operation at once ({id}); ta.op(id) follows it
+await ta.lambdas(); await ta.calls({lambda: 'extract-table', status: 'ok'}); await ta.callTree(id); await ta.callInfo(id);
+await ta.stats(); await ta.models(); await ta.tiers(); await ta.health();
 const tagged = ta.with({purpose: 'review:x', run: 'r1', priority: 'background'});
 ```
 
 Options common to `chat`, `json` and the roles: `purpose`, `run`, `cache`, `priority`, `noFallback`, `timeoutMs`, `retries` (transient
-failures), `headers`. A purpose is required: `chat`, `formalize`, `answer-*`, `ingest`, `job:<name>`, `review:<run>`, `skill:<name>`,
-`run:<id>`, `test:<name>` pass the default policy.
+failures), `headers`. A purpose is required: `chat`, `formalize`, `answer-*`, `ingest`, `job:<name>`, `review:<run>`, `lambda:<name>`,
+`run:<id>`, `test:<name>` pass the default policy. (`ta.skill`, `ta.skills` and the purpose `skill:<name>` are the names of before the
+TaskLambda rename, kept until no caller needs them: `lib/legacy.mjs`.)
 
 ## Jobs
 
@@ -174,7 +179,9 @@ still rejected -> the audit sample (role `auditor`) -> tier statistics -> the si
 `<<<repair>>>` (`{{problems}}`, `{{hint}}`); `{{params.x}}` fills template parameters; a missing variable is an error.
 
 Every run owns `<runner.dataDir>/<job>/<run-id>/` (`accepted.jsonl`, `rejected.jsonl`, `escalations.jsonl`, `audit.jsonl`,
-`decisions.jsonl`, `summary.md`, `cost.json`, `run.json`); `index.jsonl` is append-only; `--resume <run-id>` continues an interrupted
+`decisions.jsonl`, `summary.md`, `cost.json`, `run.json`); `index.jsonl` is append-only. A run started through the server is wrapped by
+a TaskLambdaCall (below): its call.json links the run folder, it has one child call per item, and the decider's and auditor's model
+calls are in its models.jsonl; `--resume <run-id>` continues an interrupted
 run; `--publish <dir>` copies the summary to `<dir>/<date>-<job>-<run>.md`. Adaptive tiers: a job with `kind`, `ladder` and `quality`
 starts at the cheapest tier that met the bar over its recent runs (`tier-stats.jsonl`), re-probing one tier lower now and then.
 
@@ -184,15 +191,34 @@ starts at the cheapest tier that met the bar over its recent runs (`tier-stats.j
 `ta` (the library, tagged with the task's purpose and run, so its budget applies), `params`, `attachments`, `target`, `taskDir`, `log`,
 `context`.
 
-## Skills and SkillPlugins
+## TaskLambdas and TaskLambdaCalls
 
-A skill is a module:
+**A TaskLambda** is a content-hashed executable unit: code, a typed parameter schema, an optional check, metadata (name, description,
+origin) and a REQUIRED effects declaration. Origins: `built-in` (`TinyAgent/lambdas/`: `chat`, `json`, `job`, `task`, `write-lambda`; and
+`agent`, the agent of `tinyagent run`), `project` (modules named by `lambdas.project`), `job` (a job folder of `lambdas.jobs`), `template`
+(a task template), and `model-written` (the agent's cached TaskLambdas, whose status is `draft`, `verified` or `edited`, and the programs
+of `write-lambda`; both run in the sandbox). The hash of a module TaskLambda is the sha256 of its module text and name, of a job folder or
+template of its files, of a model-written one of its code. Agent Skills (`.agents/skills/*/SKILL.md`) are a separate concept:
+instructions and scripts a TaskLambda may use.
+
+| Effect | Meaning | Enforced by |
+|---|---|---|
+| `pure` (alone) | no effect: the output depends only on the params and the files or attachments read | every tool and the server's client refuse the other kinds |
+| `writes-workdir` | writes, moves or deletes files of the work folder | `tools.write`, `tools.move` |
+| `model-calls` | calls models through TinyAgent | `tools.ask`; `ctx.ta.chat`/`json` of a server TaskLambda |
+| `runs-scripts` | runs a declared script of an Agent Skill (trusted code; its own writes are not observed) | `tools.runSkillScript` |
+| `runs-jobs` | starts job runs or tasks | `ctx.jobs.runJob`, `ctx.jobs.runTask` |
+| `writes-external` | writes outside the work folder and the call folder (a project store) | declared by trusted code |
+| `network` | direct network access | none is allowed today: a TaskLambda declaring it is refused |
+
+A server TaskLambda is a module:
 
 ```js
 export default {
   name: 'extract-prices',                       // lowercase, digits, . _ -
   description: 'Extract prices with their quotes from attached text.',
-  inputs: {currency: {type: 'string', enum: ['EUR', 'USD'], default: 'EUR', description: '...'}},   // string, integer, number, boolean, string[], object
+  effects: ['model-calls'],                     // required: ['pure'] or the kinds above
+  params: {currency: {type: 'string', enum: ['EUR', 'USD'], default: 'EUR', description: '...'}},   // string, integer, number, boolean, string[], object
   async run(ctx) {                              // returns {status: 'finished' | 'failed', summary, ...any JSON}
     const text = await ctx.readAttachment(ctx.attachments[0].name);
     const r = await ctx.ta.json({tier: 'small', prompt: `...${text}`});
@@ -201,114 +227,178 @@ export default {
 };
 ```
 
-`ctx`: `ta` (the library inside the server, tagged `skill:<name>` and the operation's run), `inputs` (validated, defaults applied),
-`attachments` (`[{name, path, bytes}]`), `readAttachment(name)`, `dir` (the operation folder, for outputs), `log(line)`, `jobs.runJob(dir,
-options)` and `jobs.runTask(task)` (in the same operation), `config` (the merged configuration), `runner` (the runner configuration).
-A module may also export `skills: [...]`.
+`ctx`: `params` (validated, defaults applied), `ta` (the library inside the server, tagged `lambda:<name>` and the call's run; it records
+every model call in the call's models.jsonl and refuses model calls without `model-calls`), `attachments` (`[{name, path, bytes,
+sha256}]`), `readAttachment(name)`, `dir` (the call folder, for outputs), `self` (the call's handle: `log`, `effect`, `input`, `model`,
+`child`), `invoke(name, params)` (a nested TaskLambdaCall), `log(line)`, `jobs.runJob(dir, options)` and `jobs.runTask(task)` (with
+`runs-jobs`), `config`, `runner`. A module may also export `lambdas: [...]`. Sources, in this order (a later one cannot replace a name):
+built-in, `lambdas.project` (files or folders), one per job folder of `lambdas.jobs` (`{name: dir}`, param `stage`), one per task
+template (its parameters plus `target`). Every operation runs in a worker thread of the server: modules are loaded fresh for each
+operation, a crash does not stop the server, and every model call goes back to the server's core over a message port. (The keys
+`skills.plugins` and `skills.jobs`, the export `skills` and the field `inputs` are read as the old names until no caller needs them.)
 
-Sources, in this order (a later one cannot replace a name): built-in skills (`TinyAgent/skills/`: `chat`, `json`, `job`, `task`,
-`write-plugin`), the SkillPlugins of `skills.plugins` (files or folders), one skill per job folder of `skills.jobs` (`{name: dir}`, input
-`stage`), and one skill per task template (its parameters plus `target`). Every operation (job, task, skill, run) runs in a worker thread
-of the server: modules are loaded fresh for each operation, a crash does not stop the server, and every model call goes back to the
-server's core over a message port. Operations are listed by `GET /v1/ops`; their folders stay under `runs/ops/`.
+**A TaskLambdaCall** is one invocation, with its own folder. Calls accumulate: together the folders are an auditable cache of past
+activity, visible and editable by people and coding agents. The calls root is `<TinyAgent home>/calls` (`calls.dir`, `--calls DIR`);
+every run prints its call folder.
 
-**`run-skills`** (`tinyagent run-skills "<request>"`, `ta.run`, `POST /v1/run`; the agent of `tinyagent run` is described below): the planner role (tier `good`) sees the skill catalog (names, descriptions, inputs;
-never code) and answers `{"steps": [{"skill", "inputs"}], "reason"}`; the plan is validated deterministically (known skills, inputs in
-their schemas, at most `run.maxSteps` steps; one repair round) and executed step by step, deterministically. A run registers one budget
-(`run.budget`) for all its calls. `--plan-only` stops after the plan.
+```
+~/.tinyagent/calls/
+  2026-10-03/index.jsonl                          one line per event (started, finished, pruned) of the calls started that day
+  2026-10-03/agent-5c1e09ab/                      tinyagent run "Count the lines of notes.txt"
+    call.json       {"id": "20261003-161502-5c1e09ab", "lambda": {"name": "agent", "hash": "…", "origin": "built-in", "effects": [...]},
+                     "params": {"request": "Count the lines of notes.txt", ...}, "caller": "cli", "purpose": "run:20261003-…", "run": "…",
+                     "parent": null, "root": "20261003-161502-5c1e09ab", "workdir": "/home/me/work", "started_at": "…", "finished_at": "…",
+                     "status": "ok", "ms": 8120}
+    output.json     {"status": "ok", "result": {"answer": "3", "how": "plan", "lambda": "count-lines-1a2b3c", ...}, "error": null}
+    models.jsonl    {"role": "planner", "tier": "good", "model": "openference/DeepSeek-V4-Flash-0731", "in": 2210, "out": 640,
+                     "credits": 0.75, "usd": 0, "cache_key": "9f…", "cached": false, "ms": 7400}
+    decision.json   the match: candidates with BM25 scores, the match call, the reason
+    lambda-1.mjs    the code the planner wrote in round 1 (context.txt, errors.jsonl when there were any)
+    log.txt, summary.json
+    calls/count-lines-77d0c2f1/                   the child call: the TaskLambda itself
+      call.json     {"lambda": {"name": "count-lines", "hash": "…", "origin": "model-written", "effects": ["pure"], "status": "candidate"},
+                     "params": {"file": "notes.txt"}, "parent": "20261003-161502-5c1e09ab", "reuse_key": "…",
+                     "inputs": [{"op": "read", "path": "notes.txt", "sha": "…"}], "inputs_complete": true, ...}
+      lambda.mjs    the code that ran
+      tools.jsonl   every tool call (arguments, outcome, ms)
+      inputs.jsonl  every file read, listing and search, with the sha256 of what it saw
+      effects.jsonl every write, move or delete: {"kind": "write", "path": "out.csv", "before": null | sha, "after": sha, "bytes": 81}
+      output.json   {"status": "ok", "result": {"result": {"answer": "3"}, "check": {...}}, "reused_from": "<call id>" when reused}
+  reuse/<k0k1>/<key>.json                         the last successful call of a pure TaskLambda for one reuse key
+```
 
-**Plugins written on the fly** (`write-plugin`, chosen by the planner when no skill fits): the planner tier writes a small program
-`async function run(api, input)` against an allow-listed API (`prompts/plugin-writer.md`): `api.chat({tier, prompt, system?,
-maxTokens?})` on the tiers of `sandbox.tiers` within `sandbox.maxCalls`, `api.listInputs()`, `api.readInput(name)`,
-`api.writeOutput(name, text)` (into the operation's `outputs/`), `api.log(message)`. The program is written to the operation folder
-(`plugin.js`) before it runs, and runs in the sandbox (`lib/sandbox.mjs`): a worker thread with heap, stack and wall-time limits and an
-empty environment; inside it a fresh V8 context with only the ECMAScript built-ins (no require, import, process, fetch, timers, Buffer;
-`eval` and `Function` disabled); only strings and numbers cross the boundary (JSON text parsed inside the context), so no host object is
-reachable. A program that fails is shown its error once and rewritten. `test/sandbox.test.mjs` holds the escape attempts that must fail.
+A job run started through the server is a call of `job` with one child call per item (`<job>.item`: the item's prompt fields, its
+output or problems, its model calls; a packed call is listed in every item it served with `shared`); a task is a call of `task` whose job
+items are its children; `run-lambdas` has one child call per step; `write-lambda` one per program it ran. The job runner's own run folder
+(`runs/<job>/<run-id>/`) and the task folder stay where they are and are linked from call.json (`job_run`, `task`): the call wraps them.
+
+**Reuse.** A `pure` TaskLambda called with the same lambda hash, params, work folder and attachments, whose recorded inputs (the files it
+read, its listings and searches) still have the same hashes, returns the recorded output marked `reused_from: <call id>` without running
+(`agent.reusePure: false` or `--no-cache` turns this off for the agent). A call with effects is never replayed: every call runs and is
+audited. A result larger than `calls.maxResultBytes` goes to `result.json` and is never reused.
+
+**Index and prune.** `tinyagent calls list|search` read the per-day `index.jsonl` files (filters `--lambda`, `--status`, `--date`,
+`--since`, `--parent`, `--top`, free text over params, lambda, purpose and run); `calls show <id>` prints call.json, output.json and
+summary.json; `calls tree <id>` the call tree; `calls prune [--days N] --yes` keeps call.json, output.json and summary.json (the effect
+and model summaries) of calls older than N days (`calls.keepArtifactsDays`, default 30) and removes the rest (logs, line files, code,
+outputs); a call still running is left alone. The server answers the same over HTTP (`GET /v1/calls`, `/v1/calls/<id>`, `/v1/calls/<id>/tree`).
+
+**`run-lambdas`** (`tinyagent run-lambdas "<request>"`, `ta.run`, `POST /v1/run`; the agent of `tinyagent run` is described below): the
+planner role (tier `good`) sees the catalog of TaskLambdas (names, descriptions, params, effects; never code) and answers `{"steps":
+[{"lambda", "params"}], "reason"}`; the plan is validated deterministically (known TaskLambdas, params in their schemas, at most
+`run.maxSteps` steps; one repair round) and executed step by step, each step a child call. A run registers one budget (`run.budget`) for
+all its calls. `--plan-only` stops after the plan.
+
+**TaskLambdas written on the fly** (`write-lambda`, chosen by the planner when no TaskLambda fits): the planner tier writes a small
+program `async function run(api, input)` against an allow-listed API (`prompts/lambda-writer.md`): `api.chat({tier, prompt, system?,
+maxTokens?})` on the tiers of `sandbox.tiers` within `sandbox.maxCalls`, `api.listInputs()`, `api.readInput(name)`, `api.writeOutput(name,
+text)` (into its call folder's `outputs/`), `api.log(message)`. Each attempt is a child call of the model-written TaskLambda `program`; the
+program is written to its folder (`program.js`) before it runs, and runs in the sandbox (`lib/sandbox.mjs` `runProgram`): a worker thread
+with heap, stack and wall-time limits and an empty environment; inside it a fresh V8 context with only the ECMAScript built-ins (no
+require, import, process, fetch, timers, Buffer; `eval` and `Function` disabled); only strings and numbers cross the boundary (JSON text
+parsed inside the context), so no host object is reachable. A program that fails is shown its error once and rewritten.
+`test/sandbox.test.mjs` holds the escape attempts that must fail.
 
 ## The agent: `tinyagent run`
 
 A small coding-style agent for clear, simple, repetitive tasks in a work folder (`--workdir`, default the current folder). It writes
-its plans as code, keeps the plans that worked in a visible cache, and reuses them for the same task with other parameters without
-planning again. It runs in the caller's process (the CLI, or `runAgent` of `lib/agent/index.mjs`); its model calls go through the server
-under the purpose `run:<run-id>` and one registered budget (`agent.budget`, else `run.budget`).
+TaskLambdas (code with a typed parameter schema, a check and an effects declaration), keeps the ones that worked in a visible cache, and
+calls them again for the same task with other parameters without planning again. It runs in the caller's process (the CLI, or `runAgent`
+of `lib/agent/index.mjs`); its model calls go through the server under the purpose `run:<call-id>` and one registered budget
+(`agent.budget`, else `run.budget`). Every run is a TaskLambdaCall of the built-in TaskLambda `agent`, and every execution of a TaskLambda
+is a child call (layout above); every run prints its TaskLambda folder and its call folder.
 
 **Skills.** Agent Skills in the standard format: `<workdir>/.agents/skills/<name>/SKILL.md` (YAML frontmatter `name`, `description`;
 the body is the instructions; files beside it), then the skill roots of `agent.skillDirs` (for example a project's `skills/`; the first
 source wins a name). The planner sees names and descriptions only; a body is loaded when the planner asks for it (`load_skills`) or
-when its plan uses the skill (progressive disclosure). A skill declares its scripts in the frontmatter (`scripts: [scripts/a.mjs]`) or,
-without that key, as the files of its `scripts/` folder; `.mjs`/`.js`/`.cjs` run with this Node, `.py` with python3, `.sh` with
+when its TaskLambda uses the skill (progressive disclosure). A skill declares its scripts in the frontmatter (`scripts: [scripts/a.mjs]`)
+or, without that key, as the files of its `scripts/` folder; `.mjs`/`.js`/`.cjs` run with this Node, `.py` with python3, `.sh` with
 `/bin/sh`. A script is the skill author's code: trusted like an installed tool, not sandboxed.
 
-**Tools**, the only way a plan touches anything, all confined to the work folder: `tools.read(path)`, `tools.list(dir, {recursive})`,
-`tools.search(text, {dir, ignoreCase, maxResults})` (literal text), `tools.write(path, text)`, `tools.move(from, to)` (never overwrites),
-`tools.ask(tier, prompt, {system, maxTokens})` (tiers of `agent.askTiers`, at most `agent.maxAsks` per run),
-`tools.runSkillScript(skill, script, args)` (a declared script only; argv strings, no shell, the work folder as cwd, PATH/LANG/HOME
-only, a timeout and an output cap), `tools.log(message)`. Refused: a path outside the folder (`..`, an absolute path elsewhere, a NUL
-byte), a path whose existing part leaves the folder through a symbolic link, writing through a link (O_NOFOLLOW), and writing into
-`.tinyagent/`, `.agents/` or `.git/`. Reads, writes, lists and searches are size-bounded. There is no free shell. (`move` is beyond the
-first list of tools: renaming by a pattern needs it.)
+**Tools**, the only way a TaskLambda touches anything, all confined to the work folder and to its declared effects: `tools.read(path)`,
+`tools.list(dir, {recursive})`, `tools.search(text, {dir, ignoreCase, maxResults})` (literal text), `tools.write(path, text)` and
+`tools.move(from, to)` (never overwrites) with `writes-workdir`, `tools.ask(tier, prompt, {system, maxTokens})` with `model-calls` (tiers
+of `agent.askTiers`, at most `agent.maxAsks` per run), `tools.runSkillScript(skill, script, args)` with `runs-scripts` (a declared script
+only; argv strings, no shell, the work folder as cwd, PATH/LANG/HOME only, a timeout and an output cap), `tools.log(message)`. Every read,
+listing and search is recorded with the hash of what it returned (the inputs of the call), every write and move with before/after hashes
+(its effects), every model call in models.jsonl, every tool call in tools.jsonl. Refused: an undeclared effect, a path outside the folder
+(`..`, an absolute path elsewhere, a NUL byte), a path whose existing part leaves the folder through a symbolic link, writing through a
+link (O_NOFOLLOW), and writing into `.tinyagent/`, `.agents/` or `.git/`. Reads, writes, lists and searches are size-bounded. There is no
+free shell.
 
-**The plan is code**, a module a person can read and edit:
+**A TaskLambda is code**, a module a person can read and edit:
 
 ```js
 export const meta = {name: 'sum-csv-column', task: 'Sum a numeric column of a CSV file.',
   params: {file: {type: 'string', description: 'the CSV file'}, column: {type: 'string', description: 'the column header'}},
-  example: {file: 'sales.csv', column: 'amount'}, skills: []};
+  example: {file: 'sales.csv', column: 'amount'}, effects: ['pure'], skills: []};
 export default async function run(tools, params) { /* ... */ return {answer: '59.75', outputs: []}; }
 export async function check(tools, params, result) { /* verify another way */ return {ok: true, reason: '...'}; }
 ```
 
 The planner tier (`agent.plannerTier`, else `runner.roles.planner`: `good`) writes it (`prompts/agent-planner.md`), seeing the request,
 the folder's first entries, the first lines of the files the request names and the skill catalog; it may ask once for skill bodies and
-file heads. The plan runs in the sandbox of generated plugins (`lib/sandbox.mjs` `runPlan`: a worker with heap, stack and time limits,
+file heads. It runs in the sandbox of model-written TaskLambdas (`lib/sandbox.mjs` `runModule`: a worker with heap, stack and time limits,
 a fresh V8 context with the ECMAScript built-ins only); the tools are served by the host over the message channel, only strings and
-numbers cross it. Before it runs, a plan is refused when its `meta` is not a typed parameter schema with example values that fit it, or
-when its code writes a value of the request (a string literal such as `".txt"` or `"2026-"` that occurs in the request; plain words,
-skill names and their scripts excepted): such a plan would not work with other values. A failure (a refused plan, an exception with its
-`plan.js` line, a failed check) goes back to the planner with the last tool calls and the first lines of the files the plan read, at
-most `agent.maxRounds` (3) rounds. `--plan-only` (`--dry-run`) shows the plan, or the cached plan and its values, and runs nothing.
+numbers cross it. Before it runs, a TaskLambda is refused when its `meta` is not a typed parameter schema with example values that fit it,
+when its effects declaration is missing or does not cover the tools its code uses, or when its code writes a value of the request (a
+string literal such as `".txt"` or `"2026-"` that occurs in the request; plain words, skill names and their scripts excepted): it would
+not work with other values. A failure (a refusal, an exception with its `lambda.js` line, a failed check) goes back to the planner with the
+last tool calls and the first lines of the files it read, at most `agent.maxRounds` (3) rounds; each attempt that ran is a child call
+with status `candidate`. `--plan-only` (`--dry-run`) shows the TaskLambda, or the cached one and its values, and runs nothing.
 
-**Run folder** `<workdir>/.tinyagent/runs/<run-id>/` (`agent.runsDir`): `request.json`, `decision.json` (the match), `context.txt`,
-`plan-<round>.mjs` (or `plan-cached.mjs`), `calls.jsonl` (every tool call: arguments, outcome, ms), `errors.jsonl`, `result.json` (status,
-answer, how, rounds, model calls and credits per role: planner, match, ask). Every run prints the plan folder and its run folder.
+**The TaskLambda cache**, a plain folder: `--lambdas DIR`, else `agent.lambdasDir`, else `<workdir>/.tinyagent/lambdas` (decided:
+TaskLambdas name paths of their work folder, so they live beside it, where a person or a coding agent sees and edits them; a shared
+folder is one setting away). One directory per TaskLambda: `lambda.mjs`, `LAMBDA.md` (frontmatter `id`, `origin`, `status`,
+`verified_hash`, `effects`, `calls`; sections Description, Parameters, Effects, Skills, First request, Check, Last calls) and
+`calls.jsonl` (one line per call: call id, how it was chosen, params, outcome, `reused_from`); `index.json` is a derived cache of the
+`meta`s. One that ran and passed its own check is stored `verified` and called again; one without a check is stored `draft` until
+`tinyagent lambdas verify <id>`. One whose `lambda.mjs` changed since it was verified (its hash differs from `verified_hash`) is
+`edited`: when it next matches, it runs with its check, becomes `verified` again if the check passes, and is otherwise not called (the
+planner writes a new one; a folder edited by hand is never overwritten). Editing the Description of LAMBDA.md improves matching.
+`tinyagent lambdas list | show <id> | verify <id> | rm <id> | promote <id> --name <name> [--to DIR]`; `promote` writes a project
+TaskLambda module (default `<workdir>/.tinyagent/project-lambdas/<name>.mjs`) with the same effects, whose params are its params plus
+`workdir`; add its folder to `lambdas.project` to serve it. The folder of earlier versions, `.tinyagent/plans` (plan.mjs, PLAN.md,
+runs.jsonl), is moved to `.tinyagent/lambdas` on first use: a plan without `meta.effects` gets the effects its code shows, inserted on its
+meta line, and keeps its verification.
 
-**Plan cache**, a plain folder: `--plans DIR`, else `agent.plansDir`, else `<workdir>/.tinyagent/plans` (decided: plans name paths of
-their work folder, so they live beside it, where a person or a coding agent sees and edits them; a shared folder such as
-`~/.tinyagent/plans` is one setting away). One directory per plan: `plan.mjs`, `PLAN.md` (frontmatter `id`, `status`, `verified_hash`,
-`runs`; sections Description, Parameters, Skills, First request, Check, Last runs) and `runs.jsonl`; `index.json` is a derived cache of
-the plans' `meta`. A plan that ran and passed its own check is stored `verified` and reused; one without a check is stored `draft` until
-`tinyagent plans verify <id>`. A plan whose `plan.mjs` changed since it was verified (its hash differs from `verified_hash`) is `edited`:
-when it next matches, it runs with its check, becomes `verified` again if the check passes, and is otherwise not reused (the planner
-writes a new plan; a folder edited by hand is never overwritten). Editing the Description of PLAN.md improves matching.
-`tinyagent plans list | show <id> | verify <id> | rm <id> | promote <id> --name <skill> [--to DIR]`; `promote` writes a SkillPlugin
-module (default `<workdir>/.tinyagent/skill-plugins/<name>.mjs`) whose inputs are the plan's parameters plus `workdir`; add its folder to
-`skills.plugins` to serve it.
+**Fast match before planning.** A BM25 index (`lib/agent/bm25.mjs`, no dependency) over the verified and edited TaskLambdas (task,
+LAMBDA.md description, parameter names, first request) gives the top `agent.match.k` candidates in about a millisecond. The same request
+as a TaskLambda's first request calls it at once. Otherwise the match tier (`agent.matchTier`, `tiny`, thinking off;
+`prompts/agent-match.md`) decides only whether the request is the same task as a candidate with other parameter values, and extracts
+the values; they are coerced to their declared types, validated against the schema and, with `agent.match.grounded`, each string or
+number must occur in the request (defaults excepted). A match that holds calls the cached TaskLambda directly (with its check,
+`agent.checkOnReuse`), with no planner call and no new code; a pure one whose recorded inputs still hold returns its recorded output
+without running (`how: reuse-output`); anything else, or a cached TaskLambda that fails, goes to the planner. `decision.json` records the
+candidates and their scores, the BM25 time, the match call and the reason.
 
-**Fast match before planning.** A BM25 index (`lib/agent/bm25.mjs`, no dependency) over the verified and edited plans (task, PLAN.md
-description, parameter names, first request) gives the top `agent.match.k` candidates in about a millisecond. The same request as a
-plan's first request reuses it at once. Otherwise the match tier (`agent.matchTier`, `tiny`, thinking off; `prompts/agent-match.md`)
-decides only whether the request is the same task as a candidate with other parameter values, and extracts the values; they are
-coerced to their declared types, validated against the schema and, with `agent.match.grounded`, each string or number must occur in the
-request (defaults excepted). A match that holds runs the cached plan directly (with its check, `agent.checkOnReuse`), with no planner
-call and no new code; anything else, or a cached plan that fails, goes to the planner. `decision.json` records the candidates and their
-scores, the BM25 time, the match call and the reason.
+**Measured** (`node TinyAgent/bench/agent-tasks.mjs`: 12 tasks with known results in one fresh folder and one cache: four families, a
+parameter variant of each, a paraphrased variant and three near misses; planner `good`, match `tiny`). First run (2026-10-03, plan
+cache): 12 of 12 correct; of 8 newly planned tasks 3 were right at the first plan and 5 after one or two re-plans (two of those were a
+skill name wrongly taken for a hard-coded value, fixed since); 4 of 5 variants reused with the right plan and values (the fifth after
+that fix), 0 of 3 near misses reused; a cache hit cost one local `tiny` call and 0 credits and took 1.7 to 8 s (median 3.7 s with an
+idle model), a new plan 3 to 4 model calls, 0.75 to 3 plan credits and 8 to 80 s.
 
-**Measured** once (`node TinyAgent/bench/agent-tasks.mjs`: 12 tasks with known results in one fresh folder and one cache: four
-families, a parameter variant of each, a paraphrased variant and three near misses; planner `good`, match `tiny`; 2026-10-03, the
-journal has the details): 12 of 12 correct; of 8 newly planned tasks 3 were right at the first plan and 5 after one or two re-plans
-(two of those were a skill name wrongly taken for a hard-coded value, fixed since); 4 of 5 variants reused with the right plan and
-values (the fifth after that fix), 0 of 3 near misses reused; a cache hit cost one local `tiny` call and 0 credits and took 1.7 to 8 s
-(median 3.7 s with an idle model), a new plan 3 to 4 model calls, 0.75 to 3 plan credits and 8 to 80 s.
+Second run (2026-10-03, after the TaskLambda rename; TaskLambda cache and call folders; a server of this checkout on a private port): 11 of 12
+correct; of 8 newly planned tasks 5 were right at the first TaskLambda and 2 after one re-plan; 4 of 5 variants called the right cached
+TaskLambda with the right values (4 of 4 match precision), 0 of 3 near misses reused; a cache hit cost one local `tiny` call, 0 credits
+and 1.5 to 2.4 s (median 2.0 s), a new TaskLambda 1 to 5 model calls (median 3), 0.75 to 3 plan credits and 8 to 80 s (median 17 s); 12
+credits in all; 12 agent calls with 13 child calls in the call folders. The failure: the cached `skill-stats` TaskLambda wrote the
+request's "3" into its code as the text `'3'` (a one-character literal, skipped by the hard-coded value check), so the match tier rightly
+refused it for "the 5 most frequent words"; the planner's new TaskLambda then re-implemented the script's word rule in its check, which
+failed three times. The check now flags a one-digit literal that the request holds; a targeted rerun of that family (`--only
+skill-stats,skill-stats-variant`, fresh folder) passed both, the variant by calling the cached TaskLambda.
 
 ## Command line
 
 ```
 tinyagent serve [--port N] [--host H] [--config file]
-tinyagent run "<instructions>" [--workdir DIR] [--plans DIR] [--plan-only|--dry-run] [--no-cache] [--json]
-tinyagent plans list | show <id> | verify <id> | rm <id> | promote <id> --name <skill> [--to DIR] [--yes]   [--workdir DIR] [--plans DIR]
-tinyagent run-skills "<request>" [--attach file]... [--plan-only]
-tinyagent skills | skill <name> [--inputs '{json}'] [--attach file]...
+tinyagent run "<instructions>" [--workdir DIR] [--lambdas DIR] [--calls DIR] [--plan-only|--dry-run] [--no-cache] [--json]
+tinyagent lambdas [list] [--server] | show <id> | verify <id> | rm <id> | promote <id> --name <name> [--to DIR] [--yes]   [--workdir DIR] [--lambdas DIR]
+tinyagent call <name> [--params '{json}'] [--attach file]... [--detach]   # one TaskLambdaCall; --detach prints the operation id at once
+tinyagent calls [list] [--lambda n] [--status s] [--date d] [--since d] [--parent id] [--top] [--limit n] | show <id> | tree <id>
+                | search <text> | prune [--days N] [--yes]   [--calls DIR] [--json]
+tinyagent run-lambdas "<request>" [--attach file]... [--plan-only]
 tinyagent job <dir> [--stage s] [--resume run-id] [--refresh] [--no-register] [--publish dir]
 tinyagent check <dir> | list [job] | show <job> <run-id> | prune
 tinyagent task --instructions "..." [--attach file]... [--target memory:<id>|session:<id>|none] [--template name --params '{json}']
@@ -319,7 +409,10 @@ tinyagent probe --yes --model <id> [--upstream p] [--rates 0.5,1,2]   # measure 
 ```
 
 (`tinyagent` is `node TinyAgent/bin/tinyagent.mjs`.) Common options: `--config` (project layer), `--url`, `--purpose`. Agents and
-external tools use the CLI or the HTTP API; the CLI prints short summaries and leaves the rest in the operation folder.
+external tools use the CLI or the HTTP API; the CLI prints short summaries and leaves the rest in the call folder. `run`, `lambdas` and
+`calls` read and write local folders only (`run` reaches models through the server). Old names, kept until no caller needs them
+(`lib/legacy.mjs`): `plans` and `--plans` (`lambdas`, `--lambdas`), `skills` (`lambdas --server`), `skill <name> --inputs` (`call <name>
+--params`), `run-skills` (`run-lambdas`).
 
 ## HTTP API
 
@@ -331,21 +424,25 @@ external tools use the CLI or the HTTP API; the CLI prints short summaries and l
 | `GET /v1/models`, `/health`, `/stats`, `/` | models and tiers, health (tiers, providers without keys), statistics, dashboard |
 | `POST /jobs/register`, `/jobs/finish`; `GET /jobs` | run budgets |
 | `GET /v1/local`; `POST /v1/local/<provider>/start` / `stop` | local model servers |
-| `GET /v1/skills`; `POST /v1/skills/<name>` `{inputs, attachments}` | skills |
-| `POST /v1/jobs` `{dir, stage?, resume?, refresh?, register?, publish?, priority?}`; `POST /v1/tasks`; `POST /v1/run` `{request, attachments, planOnly?}` | operations (202 `{id}`) |
+| `GET /v1/lambdas`; `POST /v1/lambdas/<name>` `{params, attachments}` | TaskLambdas; a call (202 `{id, dir}`: the operation and its call folder) |
+| `POST /v1/jobs` `{dir, stage?, resume?, refresh?, register?, publish?, priority?}`; `POST /v1/tasks`; `POST /v1/run` `{request, attachments, planOnly?}` | operations (202 `{id, dir}`) |
 | `GET /v1/ops`; `GET /v1/ops/<id>?wait=<s>&since=<n>` | operations; a long poll returns at the next log line or the end |
+| `GET /v1/calls?lambda=&status=&date=&since=&parent=&root=&text=&top=1&limit=`; `GET /v1/calls/<id>`, `/v1/calls/<id>/tree` | the call folders: search, one call, its tree |
 
-Request headers: `x-tinyagent-purpose`, `x-tinyagent-run`, `x-tinyagent-cache`, `x-tinyagent-priority`, `x-tinyagent-no-fallback`,
-`x-client-name`. Response headers: `x-tinyagent-tier`, `-model`, `-fallback`, `-fallback-reason`, `-cache`, `-cache-key`. A token
-(`TINYAGENT_TOKEN`, or in a key file) makes every request but `/health` need `Authorization: Bearer <token>`; the server listens on
-127.0.0.1 by default.
+`GET /v1/skills` and `POST /v1/skills/<name>` `{inputs}` are the old names of the TaskLambda endpoints. Request headers:
+`x-tinyagent-purpose`, `x-tinyagent-run`, `x-tinyagent-cache`, `x-tinyagent-priority`, `x-tinyagent-no-fallback`, `x-client-name`.
+Response headers: `x-tinyagent-tier`, `-model`, `-fallback`, `-fallback-reason`, `-cache`, `-cache-key`. A token (`TINYAGENT_TOKEN`, or in
+a key file) makes every request but `/health` need `Authorization: Bearer <token>`; the server listens on 127.0.0.1 by default.
 
 ## Files
 
 `bin/tinyagent.mjs` (CLI); `lib/core.mjs` (routing, forwarding, limits, fallback, cache, audit, budgets, local servers, prompted roles),
 `lib/server.mjs` (the server and its operations), `lib/client.mjs` (the library), `lib/worker.mjs` (an operation), `lib/inproc.mjs`
 (in-process and port transports), `lib/config.mjs` (layers, home), `lib/settings.mjs` (keys), `lib/limiter.mjs`, `lib/plan.mjs`,
-`lib/monitor.mjs`, `lib/cache.mjs`, `lib/audit.mjs`, `lib/guard.mjs`, `lib/local.mjs`, `lib/prompted.mjs`, `lib/skills.mjs`,
-`lib/sandbox.mjs`, `lib/agent/` (the agent of `run`), `lib/dashboard.mjs`, `lib/probe.mjs`, `lib/migrate.mjs`, `lib/jobs/` (the job runner), `skills/` (built-in skills),
-`prompts/` (the runner's and the planners' own prompts), `config.default.json`, `test/`, `bench/` (task sets with known results). `lib/legacy.mjs` holds the names of the
-earlier proxy accepted during a migration (old request headers, old key folder) and is deleted when no caller needs them.
+`lib/monitor.mjs`, `lib/cache.mjs`, `lib/audit.mjs`, `lib/guard.mjs`, `lib/local.mjs`, `lib/prompted.mjs`, `lib/lambda/` (TaskLambdas:
+`registry.mjs`, `effects.mjs`, `calls.mjs` the call folders), `lib/sandbox.mjs`, `lib/agent/` (the agent of `run`: `run.mjs`,
+`lambda-cache.mjs`, `lambda-code.mjs`, `match.mjs`, `bm25.mjs`, `workspace.mjs`, `agent-skills.mjs`), `lib/dashboard.mjs`, `lib/probe.mjs`,
+`lib/migrate.mjs`, `lib/jobs/` (the job runner), `lambdas/` (built-in TaskLambdas), `prompts/` (the runner's and the planners' own
+prompts), `config.default.json`, `test/`, `bench/` (task sets with known results). `lib/legacy.mjs` holds the names of the earlier proxy
+accepted during a migration (old request headers, old key folder) and the names of before the TaskLambda rename (`lib/skills.mjs` is its
+old module path); both are deleted when no caller needs them.

@@ -104,7 +104,7 @@ export function codeLiterals(code) {
 /**
  * Values of THIS request written into the TaskLambda's code, so it would not work with other values. A string literal of the code
  * (outside meta) is flagged when it occurs in the request as a whole (not inside a longer word) and either holds a character other than
- * letters (".txt", "2026-", "old_", "sales.csv") or equals one of the example values. A plain word of the request in the code ("file",
+ * letters (".txt", "2026-", "old_", "sales.csv", "3") or equals one of the example values. A plain word of the request in the code ("file",
  * "total") is common vocabulary, not flagged unless it is a parameter's value. `allowed`: names that are tools, not values (the skills
  * and their declared scripts: "Use the text-stats skill" names a tool).
  */
@@ -115,7 +115,8 @@ export function hardcodedValues(code, request, example = {}, { allowed = [] } = 
   const hits = new Set();
   for (const lit of codeLiterals(code)) {
     const s = lit.trim();
-    if (s.length < 2 || !/[\p{L}\p{N}]/u.test(s) || s.length > 200 || tools.has(s)) continue;
+    // A one-character literal is skipped (separators, quotes), except a digit: "the 3 most frequent words" written as '3' is a value.
+    if ((s.length < 2 && !/^\d$/.test(s)) || !/[\p{L}\p{N}]/u.test(s) || s.length > 200 || tools.has(s)) continue;
     if (/^\p{L}+$/u.test(s) && !values.has(s)) continue;
     const re = new RegExp(`(^|[^\\p{L}\\p{N}])${s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?=$|[^\\p{L}\\p{N}])`, 'u');
     if (re.test(r)) hits.add(s);
